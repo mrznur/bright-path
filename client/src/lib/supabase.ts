@@ -144,25 +144,25 @@ export async function createBatch(input: BatchInput) {
 }
 
 export async function createEnquiry(input: EnquiryInput) {
-  const row = await assertOk(await getPublicClient().from('enquiries').insert({
+  await assertOk(await getPublicClient().from('enquiries').insert({
     name: input.name, phone: input.phone, class_level: input.classLevel, subject: input.subject, course: input.course, question: input.question,
-  }).select('id').single()) as { id: string };
-  return row;
+  }));
+  return { id: 'pending' };
 }
 
 export async function createBooking(input: BookingInput) {
   const db = getPublicClient();
   const batch = await assertOk(await db.from('batches').select('id, course_id, capacity, enrolled_count').eq('id', input.batchId).eq('course_id', input.courseId).eq('active', true).maybeSingle()) as { id: string; course_id: string; capacity: number; enrolled_count: number } | null;
   if (!batch || batch.enrolled_count >= batch.capacity) throw new Error('BATCH_UNAVAILABLE');
-  const row = await assertOk(await db.from('bookings').insert({
+  await assertOk(await db.from('bookings').insert({
     batch_id: input.batchId, course_id: input.courseId, parent_name: input.parentName, student_name: input.studentName,
     phone: input.phone, class_level: input.classLevel, payment_method: input.paymentMethod, note: input.note,
-  }).select('id').single()) as { id: string };
-  return row;
+  }));
+  return { id: 'pending' };
 }
 
 export async function listBookings() {
-  return assertOk(await getAdminClient().from('bookings').select('id, batch_id AS batchId, course_id AS courseId, parent_name AS parentName, student_name AS studentName, phone, class_level AS classLevel, payment_method AS paymentMethod, note, status, created_at AS createdAt, courses(title), batches(teacher_name, days, time)').order('created_at', { ascending: false }));
+  return assertOk(await getAdminClient().from('bookings').select('id, batchId:batch_id, courseId:course_id, parentName:parent_name, studentName:student_name, phone, classLevel:class_level, paymentMethod:payment_method, note, status, createdAt:created_at, courses(title), batches(teacher_name, days, time)').order('created_at', { ascending: false }));
 }
 
 export async function listEnquiries() {
@@ -198,6 +198,25 @@ export async function updateFaq(id: string, input: { question: string; answer: s
 export async function updateSiteSettings(input: Record<string, unknown>) {
   await assertOk(await getAdminClient().from('site_settings').upsert({ id: 1, data: input }));
   clearPublicContentCache();
+}
+
+export async function createTeacher(input: { name: string; subject: string; qualifications: string[]; bio: string; photo: string }) {
+  const id = crypto.randomUUID();
+  await assertOk(await getAdminClient().from('teachers').insert({ id, name: input.name, subject: input.subject, qualifications: input.qualifications, bio: input.bio, photo: input.photo, active: true }));
+  clearPublicContentCache();
+  return { id, ...input };
+}
+export async function createTestimonial(input: { parentName: string; parentNameBn: string; parentRole: string; parentRoleBn: string; quote: string; quoteBn: string }) {
+  const id = crypto.randomUUID();
+  await assertOk(await getAdminClient().from('testimonials').insert({ id, parent_name: input.parentName, parent_name_bn: input.parentNameBn, parent_role: input.parentRole, parent_role_bn: input.parentRoleBn, quote: input.quote, quote_bn: input.quoteBn, active: true }));
+  clearPublicContentCache();
+  return { id, ...input };
+}
+export async function createFaq(input: { question: string; answer: string; displayOrder: number }) {
+  const id = crypto.randomUUID();
+  await assertOk(await getAdminClient().from('faqs').insert({ id, question: input.question, answer: input.answer, display_order: input.displayOrder, active: true }));
+  clearPublicContentCache();
+  return { id, ...input };
 }
 
 export async function seedSupabase() {

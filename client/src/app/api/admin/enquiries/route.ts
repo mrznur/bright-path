@@ -10,7 +10,7 @@ export async function GET() {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
-    return NextResponse.json({ error: 'Unable to access enquiries.' }, { status: 503 });
+    return NextResponse.json({ error: `Unable to access enquiries: ${error instanceof Error ? error.message : String(error)}` }, { status: 503 });
   }
 }
 
@@ -28,6 +28,6 @@ export async function PATCH(request: Request) {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') {
       return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     }
-    return NextResponse.json({ error: 'Unable to update enquiry.' }, { status: 503 });
+    return NextResponse.json({ error: `Unable to update enquiry: ${error instanceof Error ? error.message : String(error)}` }, { status: 503 });
   }
 }

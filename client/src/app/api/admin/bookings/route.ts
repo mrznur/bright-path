@@ -8,7 +8,7 @@ export async function GET() {
     return NextResponse.json(await listBookings());
   } catch (error) {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-    return NextResponse.json({ error: 'Unable to access bookings.' }, { status: 503 });
+    return NextResponse.json({ error: `Unable to access bookings: ${error instanceof Error ? error.message : String(error)}` }, { status: 503 });
   }
 }
 
@@ -24,6 +24,6 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ ok: true });
   } catch (error) {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-    return NextResponse.json({ error: 'Unable to update booking.' }, { status: 503 });
+    return NextResponse.json({ error: `Unable to update booking: ${error instanceof Error ? error.message : String(error)}` }, { status: 503 });
   }
 }

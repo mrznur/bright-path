@@ -48,6 +48,49 @@ export default function AdminContentPage() {
     setNotice('Saved successfully.');
   }
 
+  async function addTeacher() {
+    setError('');
+    setNotice('');
+    const response = await fetch('/api/admin/content', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'teacher', data: { name: 'New teacher', subject: '', qualifications: [], bio: '', photo: '' } }),
+    });
+    const result = await response.json();
+    if (!response.ok) { setError(result.error || 'Unable to add teacher.'); return; }
+    setTeachers((current) => [...current, result]);
+    setNotice('Teacher added — edit the fields and save.');
+  }
+
+  async function addTestimonial() {
+    setError('');
+    setNotice('');
+    const response = await fetch('/api/admin/content', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'testimonial', data: { parentName: 'New testimonial', parentNameBn: '', parentRole: '', parentRoleBn: '', quote: '', quoteBn: '' } }),
+    });
+    const result = await response.json();
+    if (!response.ok) { setError(result.error || 'Unable to add testimonial.'); return; }
+    setTestimonials((current) => [...current, result]);
+    setNotice('Testimonial added — edit the fields and save.');
+  }
+
+  async function addFaq() {
+    setError('');
+    setNotice('');
+    const nextOrder = (faqs.length ? Math.max(...faqs.map((f) => f.displayOrder)) : 0) + 1;
+    const response = await fetch('/api/admin/content', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'faq', data: { question: 'New question', answer: '', displayOrder: nextOrder } }),
+    });
+    const result = await response.json();
+    if (!response.ok) { setError(result.error || 'Unable to add FAQ.'); return; }
+    setFaqs((current) => [...current, result]);
+    setNotice('FAQ added — edit the fields and save.');
+  }
+
   if (!site) return <p className="text-sm text-[#1E1B4B]/60">{error || 'Loading site content…'}</p>;
 
   return (
@@ -82,7 +125,7 @@ export default function AdminContentPage() {
         <button type="button" onClick={() => save('site', undefined, site as unknown as Record<string, unknown>)} className="mt-5 rounded-xl bg-[#1E1B4B] px-5 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#312e68]">Save site settings</button>
       </section>
 
-      <ContentList title="Teachers" items={teachers} onSave={(item) => save('teacher', item.id, { ...item, qualifications: item.qualifications })}>
+      <ContentList title="Teachers" items={teachers} onSave={(item) => save('teacher', item.id, { ...item, qualifications: item.qualifications })} onAdd={addTeacher}>
         {(item, update) => <div className="grid gap-3 sm:grid-cols-2">
           <Input label="Name" value={item.name} onChange={(value) => update({ name: value })} />
           <Input label="Subject" value={item.subject} onChange={(value) => update({ subject: value })} />
@@ -92,7 +135,7 @@ export default function AdminContentPage() {
         </div>}
       </ContentList>
 
-      <ContentList title="Testimonials" items={testimonials} onSave={(item) => save('testimonial', item.id, item)}>
+      <ContentList title="Testimonials" items={testimonials} onSave={(item) => save('testimonial', item.id, item)} onAdd={addTestimonial}>
         {(item, update) => <div className="grid gap-3 sm:grid-cols-2">
           <Input label="Parent name" value={item.parentName} onChange={(value) => update({ parentName: value })} />
           <Input label="Parent name (Bangla)" value={item.parentNameBn} onChange={(value) => update({ parentNameBn: value })} />
@@ -103,7 +146,7 @@ export default function AdminContentPage() {
         </div>}
       </ContentList>
 
-      <ContentList title="FAQs" items={faqs} onSave={(item) => save('faq', item.id, item)}>
+      <ContentList title="FAQs" items={faqs} onSave={(item) => save('faq', item.id, item)} onAdd={addFaq}>
         {(item, update) => <div className="grid gap-3">
           <Input label="Question" value={item.question} onChange={(value) => update({ question: value })} />
           <Input label="Answer" value={item.answer} onChange={(value) => update({ answer: value })} multiline />
@@ -120,7 +163,7 @@ function Input({ label, value, onChange, multiline = false }: { label: string; v
     : <input value={value} onChange={(event) => onChange(event.target.value)} className={fieldClass} />}</label>;
 }
 
-function ContentList<T extends { id: string }>({ title, items, onSave, children }: { title: string; items: T[]; onSave: (item: T) => void; children: (item: T, update: (changes: Partial<T>) => void) => React.ReactNode }) {
+function ContentList<T extends { id: string }>({ title, items, onSave, onAdd, children }: { title: string; items: T[]; onSave: (item: T) => void; onAdd?: () => void; children: (item: T, update: (changes: Partial<T>) => void) => React.ReactNode }) {
   const [values, setValues] = useState(items);
   useEffect(() => setValues(items), [items]);
   return <section className="rounded-2xl border border-[#E8DCC8] bg-white p-6">
@@ -131,5 +174,8 @@ function ContentList<T extends { id: string }>({ title, items, onSave, children 
         <button type="button" onClick={() => onSave(item)} className="mt-4 rounded-xl bg-[#1E1B4B] px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#312e68]">Save {title.slice(0, -1).toLowerCase()}</button>
       </div>)}
     </div>
+    {onAdd && (
+      <button type="button" onClick={onAdd} className="mt-4 rounded-xl border border-[#E8DCC8] px-4 py-2.5 text-sm font-semibold text-[#1E1B4B] transition-colors hover:bg-[#F7F1E5]">Add {title.slice(0, -1).toLowerCase()}</button>
+    )}
   </section>;
 }
