@@ -8,7 +8,7 @@ export async function GET() {
     return NextResponse.json(await listCourses());
   } catch (error) {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-    return NextResponse.json({ error: `Unable to access the content database: ${error instanceof Error ? error.message : String(error)}` }, { status: 503 });
+    return NextResponse.json({ error: 'Unable to access the content database.' }, { status: 503 });
   }
 }
 
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     return NextResponse.json(course, { status: 201 });
   } catch (error) {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-    return NextResponse.json({ error: `Unable to access the content database: ${error instanceof Error ? error.message : String(error)}` }, { status: 503 });
+    return NextResponse.json({ error: 'Unable to access the content database.' }, { status: 503 });
   }
 }
 
@@ -44,6 +44,6 @@ export async function PATCH(request: Request) {
     return NextResponse.json({ ok: true });
   } catch (error) {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-    return NextResponse.json({ error: `Unable to access the content database: ${error instanceof Error ? error.message : String(error)}` }, { status: 503 });
+    return NextResponse.json({ error: 'Unable to access the content database.' }, { status: 503 });
   }
 }

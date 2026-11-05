@@ -24,6 +24,6 @@ export async function POST(request: Request) {
     if (error instanceof Error && error.message === 'BATCH_UNAVAILABLE') {
       return NextResponse.json({ error: 'This batch is full or no longer available.' }, { status: 409 });
     }
-    return NextResponse.json({ error: `Unable to save your booking right now: ${error instanceof Error ? error.message : String(error)}` }, { status: 503 });
+    return NextResponse.json({ error: 'Unable to save your booking right now.' }, { status: 503 });
   }
 }

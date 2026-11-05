@@ -8,7 +8,7 @@ export async function GET() {
     return NextResponse.json(await getAdminContent());
   } catch (error) {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-    return NextResponse.json({ error: `Unable to access content: ${error instanceof Error ? error.message : String(error)}` }, { status: 503 });
+    return NextResponse.json({ error: 'Unable to access content.' }, { status: 503 });
   }
 }
 
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
     }
   } catch (error) {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
-    return NextResponse.json({ error: `Unable to create content: ${error instanceof Error ? error.message : String(error)}` }, { status: 503 });
+    return NextResponse.json({ error: 'Unable to create content.' }, { status: 503 });
   }
 }
 
@@ -81,6 +81,6 @@ export async function PATCH(request: Request) {
   } catch (error) {
     if (error instanceof Error && error.message === 'UNAUTHORIZED') return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
     if (error instanceof Error && error.message === 'NOT_FOUND') return NextResponse.json({ error: 'Content record was not found.' }, { status: 404 });
-    return NextResponse.json({ error: `Unable to save content: ${error instanceof Error ? error.message : String(error)}` }, { status: 503 });
+    return NextResponse.json({ error: 'Unable to save content.' }, { status: 503 });
   }
 }
