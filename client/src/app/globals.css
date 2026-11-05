@@ -4,6 +4,11 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Hide Netlify's injected public branding badge across all pages. */
+iframe#nl-badge-frame {
+  display: none !important;
+}
+
 * {
   box-sizing: border-box;
 }
