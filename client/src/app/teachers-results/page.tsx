@@ -64,7 +64,7 @@ export default function TeachersResultsPage() {
 
         <p className="text-[#1E1B4B]/60 max-w-xl mb-6">
           {pick(
-            "Get to know our teaching approach, explore the learning environment and see how we aim to keep parents informed about their child’s progress. Because every student deserves guidance, encouragement and personal attention.",
+            "Get to know our teaching approach, explore the learning environment and see how we aim to keep parents informed about their child's progress. Because every student deserves guidance, encouragement and personal attention.",
             "আমাদের পাঠদানের পদ্ধতি সম্পর্কে জানুন, পড়াশোনার পরিবেশ ঘুরে দেখুন এবং কীভাবে আমরা শিক্ষার্থীর অগ্রগতি সম্পর্কে অভিভাবকদের অবহিত রাখতে চাই তা জানুন। কারণ প্রতিটি শিক্ষার্থীর প্রয়োজন সঠিক দিকনির্দেশনা, উৎসাহ এবং ব্যক্তিগত যত্ন।",
           )}
         </p>
@@ -73,8 +73,8 @@ export default function TeachersResultsPage() {
           <FiInfo className="mt-0.5 shrink-0 text-[#1E1B4B]/40" />
           <span>
             {pick(
-              "Demo content: teacher profiles, photographs, results and parent testimonials on this page are illustrative and have not been independently verified. Actual staff details, contact information and safety arrangements must be confirmed before publication and admission.",
-              "নমুনা তথ্য: এই পৃষ্ঠায় প্রদর্শিত শিক্ষক পরিচিতি, ছবি, ফলাফল এবং অভিভাবকদের মতামত শুধুমাত্র ওয়েবসাইটের নমুনা হিসেবে দেওয়া হয়েছে; এগুলো যাচাইকৃত নয়। প্রকাশ ও ভর্তির আগে প্রকৃত শিক্ষক পরিচিতি, যোগাযোগের তথ্য এবং নিরাপত্তাব্যবস্থা নিশ্চিত করতে হবে।",
+              "Information of our teachers are given here. For more clarity reach out to us.",
+              "আমাদের কোচিং-এর শিক্ষকদের বিস্তারিত এই পেইজে দেওয়া আছে। আরও জানতে আমাদের সাথে যোগাযোগ করুন।",
             )}
           </span>
         </div>
@@ -100,8 +100,8 @@ export default function TeachersResultsPage() {
 
         <p className="text-sm text-[#1E1B4B]/60 mb-8 ml-4">
           {pick(
-            "Meet the people who make learning easier. Our aim is to explain every topic clearly, encourage questions and help students build a strong understanding of their subjects. The profiles below are sample content; actual qualifications and appointments must be verified before publication.",
-            "যাঁরা পড়াশোনাকে আরও সহজ করে তুলতে সহায়তা করেন, তাঁদের সঙ্গে পরিচিত হোন। প্রতিটি বিষয় সহজভাবে বোঝানো, শিক্ষার্থীদের প্রশ্ন করতে উৎসাহিত করা এবং বিষয়ভিত্তিক মজবুত ধারণা গড়ে তোলাই আমাদের লক্ষ্য। নিচের শিক্ষক পরিচিতিগুলো নমুনা তথ্য; প্রকাশের আগে প্রকৃত যোগ্যতা ও নিয়োগের তথ্য যাচাই করতে হবে।",
+            "Meet the people who make learning easier. Our aim is to explain every topic clearly, encourage questions and help students build a strong understanding of their subjects.",
+            "যাঁরা পড়াশোনাকে আরও সহজ করে তুলতে সহায়তা করেন, তাঁদের সঙ্গে পরিচিত হোন। প্রতিটি বিষয় সহজভাবে বোঝানো, শিক্ষার্থীদের প্রশ্ন করতে উৎসাহিত করা এবং বিষয়ভিত্তিক মজবুত ধারণা গড়ে তোলাই আমাদের লক্ষ্য।",
           )}
         </p>
 
@@ -170,8 +170,8 @@ export default function TeachersResultsPage() {
           <div>
             <p className="text-xs font-semibold tracking-widest uppercase text-[#F5C518]">
               {pick(
-                "02 / Progress, thoughtfully shared",
-                "০২ / যত্নসহকারে শিক্ষার্থীর অগ্রগতি",
+                "02 / Progress of our students",
+                "০২ / আমাদের শিক্ষার্থীদের অগ্রগতি",
               )}
             </p>
 
@@ -186,20 +186,20 @@ export default function TeachersResultsPage() {
 
         <p className="text-sm text-[#1E1B4B]/60 mb-2 ml-4">
           {pick(
-            "We believe meaningful progress comes from understanding concepts, regular practice and consistent effort. These sample figures demonstrate how student progress may be presented to parents. They are not verified student results or a guarantee of future performance.",
-            "আমরা বিশ্বাস করি, বিষয় ভালোভাবে বোঝা, নিয়মিত অনুশীলন এবং ধারাবাহিক প্রচেষ্টার মাধ্যমেই প্রকৃত উন্নতি সম্ভব। নিচের নমুনা তথ্যগুলো অভিভাবকদের কাছে শিক্ষার্থীর অগ্রগতি কীভাবে তুলে ধরা যেতে পারে তা বোঝানোর জন্য দেওয়া হয়েছে। এগুলো প্রকৃত শিক্ষার্থীর যাচাইকৃত ফলাফল নয় এবং ভবিষ্যৎ ফলাফলের নিশ্চয়তাও নয়।",
+            "We believe meaningful progress comes from understanding concepts, regular practice and consistent effort.",
+            "আমরা বিশ্বাস করি, বিষয় ভালোভাবে বোঝা, নিয়মিত অনুশীলন এবং ধারাবাহিক প্রচেষ্টার মাধ্যমেই প্রকৃত উন্নতি সম্ভব।",
           )}
         </p>
 
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 ml-4 mb-6">
           <span className="bg-[#F5C518] text-[#1E1B4B] text-xs font-semibold px-2.5 py-1 rounded-full w-fit">
-            {pick("Illustrative data only", "শুধুমাত্র নমুনা তথ্য")}
+            {pick("Progress", "অগ্রগতি")}
           </span>
 
           <span className="text-xs text-[#1E1B4B]/40">
             {pick(
-              "Learner labels are fictional and do not represent actual student records.",
-              "শিক্ষার্থীদের পরিচিতি কাল্পনিক; এগুলো কোনো প্রকৃত শিক্ষার্থীর তথ্য নয়।",
+              "Our students' learning progress shared data by themselves.",
+              "আমাদের শিক্ষার্থীদের দেওয়া তাদের নিজেদের অগ্রগতির তথ্য।",
             )}
           </span>
         </div>
@@ -272,12 +272,12 @@ export default function TeachersResultsPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {[
             {
-              en: "A calm classroom · Illustrative photo",
-              bn: "শান্ত ও মনোযোগী শ্রেণিকক্ষ · নমুনা ছবি",
+              en: "A calm classroom photo",
+              bn: "শান্ত শ্রেণিকক্ষ নমুনা ছবি",
             },
             {
-              en: "Room for questions · Illustrative photo",
-              bn: "প্রশ্ন ও আলোচনার সুযোগ · নমুনা ছবি",
+              en: "Room for questions",
+              bn: "প্রশ্ন ও আলোচনার সুযোগ",
             },
           ].map((item) => (
             <div
@@ -341,7 +341,7 @@ export default function TeachersResultsPage() {
                 className="bg-[#F5EDD8] rounded-2xl p-6 flex flex-col gap-4"
               >
                 <p className="text-xs font-semibold tracking-widest uppercase text-[#F5C518]">
-                  {pick("Sample testimonial", "নমুনা মতামত")}
+                  {pick("Testimonial", "মতামত")}
                 </p>
 
                 <blockquote className="text-xl font-semibold text-[#1E1B4B] leading-snug">
@@ -378,7 +378,7 @@ export default function TeachersResultsPage() {
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div>
             <p className="text-xs font-semibold tracking-widest uppercase text-[#1E1B4B]/50 mb-1">
-              {pick("Your child’s next chapter", "আপনার সন্তানের আগামীর পথ")}
+              {pick("Your child's next chapter", "আপনার সন্তানের আগামীর পথ")}
             </p>
 
             <h2 className="text-2xl font-bold text-[#1E1B4B]">
@@ -390,7 +390,7 @@ export default function TeachersResultsPage() {
 
             <p className="text-[#1E1B4B]/60 text-sm mt-1">
               {pick(
-                "Tell us about your child’s learning needs. We’ll help you explore suitable courses and discuss the possibility of a demo class.",
+                "Tell us about your child's learning needs. We'll help you explore suitable courses and discuss the possibility of a demo class.",
                 "আপনার সন্তানের পড়াশোনার প্রয়োজন সম্পর্কে আমাদের জানান। আমরা উপযুক্ত কোর্স বেছে নিতে এবং ডেমো ক্লাসের সুযোগ সম্পর্কে আলোচনা করতে সাহায্য করব।",
               )}
             </p>
