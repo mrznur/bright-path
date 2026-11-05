@@ -107,3 +107,33 @@ create policy "public can read active faqs" on public.faqs for select using (act
 create policy "public can read site settings" on public.site_settings for select using (true);
 create policy "public can submit enquiries" on public.enquiries for insert with check (true);
 create policy "public can submit bookings" on public.bookings for insert with check (true);
+
+-- ── Enrolled count trigger ──────────────────────────────────────────
+-- Keeps batches.enrolled_count in sync when booking status changes.
+-- Increment when a booking becomes 'confirmed'.
+-- Decrement when a booking moves away from 'confirmed'.
+
+create or replace function public.sync_enrolled_count()
+returns trigger language plpgsql as $$
+begin
+  -- Moving INTO confirmed: increment
+  if NEW.status = 'confirmed' and (OLD.status is null or OLD.status <> 'confirmed') then
+    update public.batches
+      set enrolled_count = enrolled_count + 1
+      where id = NEW.batch_id;
+
+  -- Moving OUT OF confirmed: decrement (floor at 0)
+  elsif OLD.status = 'confirmed' and NEW.status <> 'confirmed' then
+    update public.batches
+      set enrolled_count = greatest(enrolled_count - 1, 0)
+      where id = NEW.batch_id;
+  end if;
+
+  return NEW;
+end;
+$$;
+
+drop trigger if exists trg_sync_enrolled_count on public.bookings;
+create trigger trg_sync_enrolled_count
+  after update of status on public.bookings
+  for each row execute function public.sync_enrolled_count();
