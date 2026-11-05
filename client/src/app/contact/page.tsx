@@ -118,10 +118,10 @@ export default function ContactPage() {
       if (!response.ok) {
         setError(
           data.error ||
-            pick(
-              "We could not send your enquiry. Please try again in a moment, or call us directly.",
-              "আপনার জিজ্ঞাসা পাঠানো যায়নি। অনুগ্রহ করে একটু পরে আবার চেষ্টা করুন, অথবা সরাসরি আমাদের ফোন করুন।",
-            ),
+          pick(
+            "We could not send your enquiry. Please try again in a moment, or call us directly.",
+            "আপনার জিজ্ঞাসা পাঠানো যায়নি। অনুগ্রহ করে একটু পরে আবার চেষ্টা করুন, অথবা সরাসরি আমাদের ফোন করুন।",
+          ),
         );
         return;
       }
@@ -178,23 +178,25 @@ export default function ContactPage() {
 
       {/* ── Phone CTA bar ──────────────────────────────────────────────── */}
       <section className="grid grid-cols-1 sm:grid-cols-2">
-        {/* Left half: yellow */}
-        <div className="bg-[#F5C518] py-10 px-4 sm:px-10 flex flex-col justify-center">
-          <p className="text-xs font-semibold tracking-widest uppercase text-[#1E1B4B]/50 mb-1">
-            {pick(
-              "The quickest way to reach us",
-              "আমাদের কাছে পৌঁছানোর সবচেয়ে সহজ উপায়",
-            )}
-          </p>
-          <p className="text-3xl sm:text-4xl font-bold text-[#1E1B4B] tracking-[0.18em] sm:tracking-widest">
-            {bangla ? site.phone.bn : site.phone.en}
-          </p>
-          <p className="text-sm text-[#1E1B4B]/60 mt-1">
-            {pick(
-              "Call us during opening hours to discuss classes or arrange a visit.",
-              "ক্লাস নিয়ে কথা বলতে বা সেন্টারে আসার সময় ঠিক করতে খোলার সময়ে ফোন করুন।",
-            )}
-          </p>
+        {/* Left half: yellow, number block pushed to the end */}
+        <div className="bg-[#F5C518] py-10 px-4 sm:px-10 flex items-end sm:justify-end">
+          <div>
+            <p className="text-xs font-semibold tracking-widest uppercase text-[#1E1B4B]/50 mb-1">
+              {pick(
+                "The quickest way to reach us",
+                "আমাদের কাছে পৌঁছানোর সবচেয়ে সহজ উপায়",
+              )}
+            </p>
+            <p className="text-3xl sm:text-4xl font-bold text-[#1E1B4B] tracking-[0.18em] sm:tracking-widest">
+              {bangla ? site.phone.bn : site.phone.en}
+            </p>
+            <p className="text-sm text-[#1E1B4B]/60 mt-1">
+              {pick(
+                "Call us during opening hours to discuss classes or arrange a visit.",
+                "ক্লাস নিয়ে কথা বলতে বা সেন্টারে আসার সময় ঠিক করতে খোলার সময়ে ফোন করুন।",
+              )}
+            </p>
+          </div>
         </div>
 
         {/* Right half: dark navy */}
