@@ -26,7 +26,7 @@ export default function Footer() {
             height={1120}
             className="h-auto w-[70px] rounded-lg object-contain"
           />
-          <p className="text-sm text-white/70 leading-relaxed">
+          <p className="text-base text-white/70 leading-relaxed">
             {pick("BrightPath Coaching Center, Dhaka.", "ব্রাইটপাথ কোচিং সেন্টার, ঢাকা।")}
           </p>
 
@@ -48,10 +48,10 @@ export default function Footer() {
 
         {/* Explore */}
         <div>
-          <p className="text-xs font-semibold tracking-widest uppercase text-white/40 mb-3">
+          <p className="text-sm font-semibold tracking-widest uppercase text-white/40 mb-3">
             {pick("Explore BrightPath", "ব্রাইটপাথ ঘুরে দেখুন")}
           </p>
-          <ul className="space-y-2 text-sm text-white/70">
+          <ul className="space-y-2 text-base text-white/70">
             <li className="break-words">
               <Link
                 href="/courses"
@@ -94,10 +94,10 @@ export default function Footer() {
 
         {/* Contact */}
         <div>
-          <p className="text-xs font-semibold tracking-widest uppercase text-white/40 mb-3">
+          <p className="text-sm font-semibold tracking-widest uppercase text-white/40 mb-3">
             {pick("We're here to help", "আপনার সাহায্যের জন্য আমরা আছি")}
           </p>
-          <ul className="space-y-2 text-sm text-white/70">
+          <ul className="space-y-2 text-base text-white/70">
             <li>
               {pick("Phone", "ফোন")}:{" "}
               <a href={site.tel} className="hover:text-white transition-colors">
@@ -139,3 +139,4 @@ export default function Footer() {
     </footer>
   );
 }
+

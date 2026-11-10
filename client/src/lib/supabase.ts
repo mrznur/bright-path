@@ -219,6 +219,24 @@ export async function createFaq(input: { question: string; answer: string; displ
   return { id, ...input };
 }
 
+export async function seedNewTestimonials() {
+  const db = getAdminClient();
+  const newOnes = [
+    { id: 'tm3', parent_name: 'Shahnaz Begum', parent_name_bn: 'শাহনাজ বেগম', parent_role: 'Parent of a Class 5 learner', parent_role_bn: '৫ম শ্রেণির শিক্ষার্থীর অভিভাবক', quote: 'Before joining BrightPath, my daughter was afraid of English. Now she reads her textbook out loud at home.', quote_bn: 'ব্রাইটপাথে ভর্তির আগে আমার মেয়ে ইংরেজিতে ভয় পেত। এখন সে ঘরে বসে জোরে জোরে পাঠ্যবই পড়ে।', active: true },
+    { id: 'tm4', parent_name: 'Rafiqul Islam', parent_name_bn: 'রফিকুল ইসলাম', parent_role: 'Parent of a Class 9 learner', parent_role_bn: '৯ম শ্রেণির শিক্ষার্থীর অভিভাবক', quote: "His Physics teacher explains every step clearly. My son came home and taught me the same lesson — that's when I knew it was working.", quote_bn: 'তার পদার্থবিজ্ঞানের শিক্ষক প্রতিটি ধাপ স্পষ্টভাবে বোঝান। আমার ছেলে বাড়িতে এসে আমাকে সেই পাঠই শেখাল — তখনই বুঝলাম এটা কাজ করছে।', active: true },
+    { id: 'tm5', parent_name: 'Nasrin Sultana', parent_name_bn: 'নাসরিন সুলতানা', parent_role: 'Parent of a Class 12 learner', parent_role_bn: '১২শ শ্রেণির শিক্ষার্থীর অভিভাবক', quote: 'I visited the center before enrolling. The environment is calm, clean and safe. As a mother, that matters more than anything.', quote_bn: 'ভর্তির আগে আমি সেন্টারটি পরিদর্শন করেছিলাম। পরিবেশ শান্ত, পরিচ্ছন্ন এবং নিরাপদ। একজন মা হিসেবে এটাই আমার কাছে সবচেয়ে গুরুত্বপূর্ণ।', active: true },
+    { id: 'tm6', parent_name: 'Kamal Uddin', parent_name_bn: 'কামাল উদ্দিন', parent_role: 'Parent of a Class 8 learner', parent_role_bn: '৮ম শ্রেণির শিক্ষার্থীর অভিভাবক', quote: 'The teachers actually remember where each student is struggling. That personal attention made all the difference for us.', quote_bn: 'শিক্ষকরা মনে রাখেন কোন শিক্ষার্থী কোথায় সমস্যায় পড়ছে। এই ব্যক্তিগত মনোযোগটাই আমাদের জন্য সবকিছু পরিবর্তন করে দিয়েছে।', active: true },
+  ];
+  // Only insert ones that don't exist yet
+  const existing = await assertOk(await db.from('testimonials').select('id').in('id', newOnes.map(t => t.id))) as { id: string }[];
+  const existingIds = new Set(existing.map(r => r.id));
+  const toInsert = newOnes.filter(t => !existingIds.has(t.id));
+  if (toInsert.length === 0) return 0;
+  await assertOk(await db.from('testimonials').insert(toInsert));
+  clearPublicContentCache();
+  return toInsert.length;
+}
+
 export async function seedSupabase() {
   const db = getAdminClient();
   const existing = await assertOk(await db.from('courses').select('id').limit(1));
