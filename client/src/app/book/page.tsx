@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { FiArrowUpRight, FiCheck, FiPhone } from 'react-icons/fi';
 import { useContent } from '@/components/ContentProvider';
 import { useLanguage } from '@/components/LanguageProvider';
+import { useToast, ToastContainer } from '@/components/Toast';
 
 const BN_DIGITS = '০১২৩৪৫৬৭৮৯';
 function toEnglishDigits(value: string) {
@@ -58,6 +59,7 @@ export default function BookPage() {
   const { language } = useLanguage();
   const bangla = language === 'bn';
   const pick = (en: string, bn: string) => (bangla ? bn : en);
+  const { toasts, toast, dismiss } = useToast();
 
   const course = useMemo(
     () => courses.find((item) => item.id === params.get('courseId') && item.batchId === params.get('batchId')),
@@ -109,13 +111,30 @@ export default function BookPage() {
     const cleanPhone = form.phone.replace(/[\s-]/g, '');
     if (!BD_PHONE_RE.test(cleanPhone)) {
       setPhoneError(pick('Please enter a valid 11-digit Bangladesh mobile number (e.g. 01712345678).', 'সঠিক ১১ সংখ্যার বাংলাদেশি মোবাইল নম্বর দিন (যেমন ০১৭১২৩৪৫৬৭৮)।'));
+      toast('error', pick('Enter a valid 11-digit BD mobile number.', 'সঠিক ১১ সংখ্যার মোবাইল নম্বর দিন।'));
       return;
     }
     if (needsTransactionId && !form.transactionId.trim()) {
       setError(pick('Please enter your transaction ID before submitting.', 'জমা দেওয়ার আগে ট্রানজেকশন আইডি দিন।'));
+      toast('error', pick('Please enter your transaction ID.', 'ট্রানজেকশন আইডি দিন।'));
       return;
     }
-    if (!form.consent) return;
+    if (!form.parentName.trim()) {
+      toast('error', pick("Parent / guardian name is required.", "অভিভাবকের নাম দিন।"));
+      return;
+    }
+    if (!form.studentName.trim()) {
+      toast('error', pick("Student's name is required.", "শিক্ষার্থীর নাম দিন।"));
+      return;
+    }
+    if (classOptions.length > 1 && !form.classLevel) {
+      toast('error', pick("Please select the student's class.", "শিক্ষার্থীর শ্রেণি বেছে নিন।"));
+      return;
+    }
+    if (!form.consent) {
+      toast('error', pick('Please confirm your consent.', 'সম্মতি নিশ্চিত করুন।'));
+      return;
+    }
 
     setSaving(true);
     try {
@@ -126,12 +145,17 @@ export default function BookPage() {
       });
       const data = await response.json();
       if (!response.ok) {
-        setError(data.error || pick('Unable to save booking. Please try again.', 'বুকিং সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।'));
+        const msg = data.error || pick('Unable to save booking. Please try again.', 'বুকিং সংরক্ষণ করা যায়নি। আবার চেষ্টা করুন।');
+        setError(msg);
+        toast('error', msg);
         return;
       }
+      toast('success', pick('Booking submitted successfully!', 'বুকিং সফলভাবে জমা দেওয়া হয়েছে!'));
       setSubmitted(true);
     } catch {
-      setError(pick('Connection error. Please check your internet and try again.', 'সংযোগ সমস্যা। ইন্টারনেট দেখে আবার চেষ্টা করুন।'));
+      const msg = pick('Connection error. Please check your internet and try again.', 'সংযোগ সমস্যা। ইন্টারনেট দেখে আবার চেষ্টা করুন।');
+      setError(msg);
+      toast('error', msg);
     } finally {
       setSaving(false);
     }
@@ -150,6 +174,7 @@ export default function BookPage() {
 
   return (
     <section className="mx-auto grid max-w-5xl gap-8 px-4 py-12 sm:px-6 lg:grid-cols-[1fr_0.85fr] items-start">
+      <ToastContainer toasts={toasts} dismiss={dismiss} />
       {/* ── Form ─────────────────────────────────────────────────────── */}
       <div>
         <p className="text-sm font-semibold uppercase tracking-widest text-[#F5C518] mb-1">

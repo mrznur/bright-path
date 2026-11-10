@@ -4,6 +4,7 @@ import { FormEvent, useMemo, useState } from "react";
 import { FiPhone, FiArrowUpRight, FiMapPin, FiFacebook } from "react-icons/fi";
 import { useLanguage } from "@/components/LanguageProvider";
 import { useContent } from "@/components/ContentProvider";
+import { useToast, ToastContainer } from "@/components/Toast";
 
 type Enquiry = {
   name: string;
@@ -15,8 +16,6 @@ type Enquiry = {
   consent: boolean;
 };
 
-// "value" is what gets saved in the database (always English).
-// "en" / "bn" are only the labels the visitor sees.
 const GENERAL = {
   value: "General enquiry",
   en: "General enquiry",
@@ -46,21 +45,22 @@ const SUBJECT_OPTIONS = [
   GENERAL,
 ];
 
-
-
-// Lets parents type a phone number with Bangla digits (০১৭...) — it is saved with English digits.
 const BN_DIGITS = "০১২৩৪৫৬৭৮৯";
 function toEnglishDigits(value: string) {
   return value.replace(/[০-৯]/g, (digit) => String(BN_DIGITS.indexOf(digit)));
 }
 
+const BD_PHONE_RE = /^(?:0)1[3-9]\d{8}$/;
+
 const inputClass =
   "border border-[#E8DCC8] rounded-xl px-4 py-3 text-base text-[#1E1B4B] placeholder-[#1E1B4B]/30 bg-white focus:outline-none focus:border-[#1E1B4B] transition-colors";
-
+const inputErrorClass =
+  "border border-red-300 rounded-xl px-4 py-3 text-base text-[#1E1B4B] placeholder-[#1E1B4B]/30 bg-white focus:outline-none focus:border-red-500 transition-colors";
 const selectClass =
   "w-full border border-[#E8DCC8] rounded-xl px-4 py-3 pr-10 text-base text-[#1E1B4B] bg-white focus:outline-none focus:border-[#1E1B4B] transition-colors appearance-none cursor-pointer";
+const selectErrorClass =
+  "w-full border border-red-300 rounded-xl px-4 py-3 pr-10 text-base text-[#1E1B4B] bg-white focus:outline-none focus:border-red-500 transition-colors appearance-none cursor-pointer";
 
-// Wraps a <select> with a consistent positioned chevron arrow
 function SelectWrap({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative">
@@ -78,10 +78,8 @@ export default function ContactPage() {
   const { language } = useLanguage();
   const { site, courses } = useContent();
   const bangla = language === "bn";
+  const { toasts, toast, dismiss } = useToast();
 
-  // Build course options from live DB data.
-  // courses is a flat list of course+batch rows, so deduplicate by course id.
-  // Include level in value/label so courses with the same title (e.g. SSC Physics vs HSC Physics) stay unique.
   const courseOptions = useMemo(() => {
     const seen = new Set<string>();
     const unique = courses.filter((c) => {
@@ -89,9 +87,18 @@ export default function ContactPage() {
       seen.add(c.id);
       return true;
     });
-    return [...unique.map((c) => ({ value: `${c.title} · ${c.level}`, en: `${c.title} · ${c.level}`, bn: `${c.titleBn || c.title} · ${c.levelBn || c.level}` })), GENERAL];
+    return [
+      ...unique.map((c) => ({
+        value: `${c.title} · ${c.level}`,
+        en: `${c.title} · ${c.level}`,
+        bn: `${c.titleBn || c.title} · ${c.levelBn || c.level}`,
+      })),
+      GENERAL,
+    ];
   }, [courses]);
+
   const pick = (en: string, bn: string) => (bangla ? bn : en);
+
   const [form, setForm] = useState<Enquiry>({
     name: "",
     phone: "",
@@ -101,8 +108,9 @@ export default function ContactPage() {
     question: "",
     consent: false,
   });
+  // Track which fields have been touched (blurred) for per-field error styling
+  const [touched, setTouched] = useState<Partial<Record<keyof Enquiry, boolean>>>({});
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
 
   function updateField<K extends keyof Enquiry>(field: K, value: Enquiry[K]) {
@@ -110,17 +118,37 @@ export default function ContactPage() {
     setForm((current) => ({ ...current, [field]: value }));
   }
 
+  function touch(field: keyof Enquiry) {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+  }
+
+  // Field-level error checks
+  const phoneInvalid = !BD_PHONE_RE.test(form.phone.replace(/[\s-]/g, ""));
+  const errors = {
+    name: touched.name && !form.name.trim(),
+    phone: touched.phone && phoneInvalid,
+    classLevel: touched.classLevel && !form.classLevel,
+    subject: touched.subject && !form.subject,
+    course: touched.course && !form.course,
+  };
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError("");
-    if (!form.consent) return;
-    if (!/^(?:0)1[3-9]\d{8}$/.test(form.phone.replace(/[\s-]/g, ""))) {
-      setError(
-        pick(
-          "Please enter a valid 11-digit Bangladesh mobile number.",
-          "অনুগ্রহ করে সঠিক ১১ সংখ্যার বাংলাদেশি মোবাইল নম্বর দিন।",
-        ),
-      );
+
+    // Mark all required fields as touched so errors show
+    setTouched({ name: true, phone: true, classLevel: true, subject: true, course: true });
+
+    // Validate all required fields and fire individual toasts
+    const issues: string[] = [];
+    if (!form.name.trim()) issues.push(pick("Parent / guardian name is required.", "অভিভাবকের নাম দিন।"));
+    if (phoneInvalid) issues.push(pick("Enter a valid 11-digit BD mobile number.", "সঠিক ১১ সংখ্যার মোবাইল নম্বর দিন।"));
+    if (!form.classLevel) issues.push(pick("Please select the student's class.", "শিক্ষার্থীর শ্রেণি বেছে নিন।"));
+    if (!form.subject) issues.push(pick("Please select a subject.", "বিষয় বেছে নিন।"));
+    if (!form.course) issues.push(pick("Please select a course.", "কোর্স বেছে নিন।"));
+    if (!form.consent) issues.push(pick("Please confirm your consent.", "সম্মতি নিশ্চিত করুন।"));
+
+    if (issues.length > 0) {
+      issues.forEach((msg) => toast("error", msg));
       return;
     }
 
@@ -133,32 +161,24 @@ export default function ContactPage() {
       });
       const data = await response.json();
       if (!response.ok) {
-        setError(
-          data.error ||
-          pick(
-            "We could not send your enquiry. Please try again in a moment, or call us directly.",
-            "আপনার জিজ্ঞাসা পাঠানো যায়নি। অনুগ্রহ করে একটু পরে আবার চেষ্টা করুন, অথবা সরাসরি আমাদের ফোন করুন।",
-          ),
-        );
+        toast("error", data.error || pick(
+          "Could not send your enquiry. Please try again or call us.",
+          "জিজ্ঞাসা পাঠানো যায়নি। আবার চেষ্টা করুন বা ফোন করুন।",
+        ));
         return;
       }
+      toast("success", pick(
+        "Enquiry sent! We will contact you soon.",
+        "জিজ্ঞাসা পাঠানো হয়েছে! শীঘ্রই যোগাযোগ করব।",
+      ));
       setSubmitted(true);
-      setForm({
-        name: "",
-        phone: "",
-        classLevel: "",
-        subject: "",
-        course: "",
-        question: "",
-        consent: false,
-      });
+      setTouched({});
+      setForm({ name: "", phone: "", classLevel: "", subject: "", course: "", question: "", consent: false });
     } catch {
-      setError(
-        pick(
-          "Something went wrong with the connection. Please check your internet and try again.",
-          "ইন্টারনেট সংযোগে সমস্যা হয়েছে। অনুগ্রহ করে সংযোগ দেখে আবার চেষ্টা করুন।",
-        ),
-      );
+      toast("error", pick(
+        "Connection error. Please check your internet and try again.",
+        "সংযোগ সমস্যা। ইন্টারনেট দেখে আবার চেষ্টা করুন।",
+      ));
     } finally {
       setSaving(false);
     }
@@ -166,6 +186,8 @@ export default function ContactPage() {
 
   return (
     <>
+      <ToastContainer toasts={toasts} dismiss={dismiss} />
+
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 pt-12 pb-8">
         <p className="text-sm font-semibold tracking-widest uppercase text-[#F5C518] mb-3">
@@ -195,14 +217,10 @@ export default function ContactPage() {
 
       {/* ── Phone CTA bar ──────────────────────────────────────────────── */}
       <section className="grid grid-cols-1 sm:grid-cols-2">
-        {/* Left half: yellow, number block pushed to the end */}
         <div className="bg-[#F5C518] py-10 px-4 sm:px-10 flex items-end sm:justify-end">
           <div>
             <p className="text-sm font-semibold tracking-widest uppercase text-[#1E1B4B]/50 mb-1">
-              {pick(
-                "The quickest way to reach us",
-                "আমাদের কাছে পৌঁছানোর সবচেয়ে সহজ উপায়",
-              )}
+              {pick("The quickest way to reach us", "আমাদের কাছে পৌঁছানোর সবচেয়ে সহজ উপায়")}
             </p>
             <p className="text-3xl sm:text-4xl font-bold text-[#1E1B4B] tracking-[0.18em] sm:tracking-widest">
               {bangla ? site.phone.bn : site.phone.en}
@@ -215,8 +233,6 @@ export default function ContactPage() {
             </p>
           </div>
         </div>
-
-        {/* Right half: dark navy */}
         <div className="bg-[#1E1B4B] py-10 px-4 sm:px-10 flex flex-col items-start justify-center gap-3">
           <a
             href={site.tel}
@@ -225,29 +241,18 @@ export default function ContactPage() {
             {pick("Call BrightPath", "ব্রাইটপাথে ফোন করুন")} <FiPhone />
           </a>
           <p className="text-sm text-white/60">
-            {pick(site.hours.en, site.hours.bn)
-              .split("·")
-              .map((part, index) => (
-                <span key={index} className="block">
-                  {part.trim()}
-                </span>
-              ))}
+            {pick(site.hours.en, site.hours.bn).split("·").map((part, index) => (
+              <span key={index} className="block">{part.trim()}</span>
+            ))}
           </p>
         </div>
       </section>
 
       {/* ── Form + Info grid ───────────────────────────────────────────── */}
       <section className="max-w-6xl mx-auto px-4 sm:px-6 py-14 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-        {/* Enquiry form */}
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white border border-[#E8DCC8] rounded-2xl p-7"
-        >
+        <form onSubmit={handleSubmit} className="bg-white border border-[#E8DCC8] rounded-2xl p-7">
           <p className="text-sm font-semibold tracking-widest uppercase text-[#F5C518] mb-1">
-            {pick(
-              "Let's find the next step together",
-              "একসঙ্গে পরবর্তী পদক্ষেপ ঠিক করি",
-            )}
+            {pick("Let's find the next step together", "একসঙ্গে পরবর্তী পদক্ষেপ ঠিক করি")}
           </p>
           <h2 className="text-2xl font-bold text-[#1E1B4B] mb-1">
             {pick("Send an enquiry", "জিজ্ঞাসা পাঠান")}
@@ -255,11 +260,12 @@ export default function ContactPage() {
           <p className="text-base text-[#1E1B4B]/50 mb-6">
             {pick(
               "All fields marked * are required. General enquiries are welcome too.",
-              "তারকা (*) চিহ্নিত ঘরগুলো অবশ্যই পূরণ করতে হবে। সাধারণ কোনো প্রশ্ন থাকলে সেটাও নির্দ্বিধায় পাঠাতে পারেন।",
+              "তারকা (*) চিহ্নিত ঘরগুলো অবশ্যই পূরণ করতে হবে।",
             )}
           </p>
 
           <div className="space-y-4">
+            {/* Name + Phone */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-semibold text-[#1E1B4B]">
@@ -268,11 +274,15 @@ export default function ContactPage() {
                 <input
                   type="text"
                   value={form.name}
-                  onChange={(event) => updateField("name", event.target.value)}
+                  onChange={(e) => updateField("name", e.target.value)}
+                  onBlur={() => touch("name")}
                   required
                   placeholder={pick("Your full name", "আপনার পূর্ণ নাম")}
-                  className={inputClass}
+                  className={errors.name ? inputErrorClass : inputClass}
                 />
+                {errors.name && (
+                  <p className="text-sm text-red-600 mt-1">{pick("Name is required.", "নাম দিন।")}</p>
+                )}
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-semibold text-[#1E1B4B]">
@@ -281,18 +291,18 @@ export default function ContactPage() {
                 <input
                   type="tel"
                   value={form.phone}
-                  onChange={(event) =>
-                    updateField("phone", toEnglishDigits(event.target.value).replace(/[^\d]/g, '').slice(0, 11))
-                  }
+                  onChange={(e) => updateField("phone", toEnglishDigits(e.target.value).replace(/[^\d]/g, "").slice(0, 11))}
+                  onBlur={() => touch("phone")}
                   maxLength={11}
                   required
                   placeholder={pick("e.g. 01712345678", "যেমন ০১৭১২৩৪৫৬৭৮")}
-                  className={inputClass}
+                  className={errors.phone ? inputErrorClass : inputClass}
                 />
                 <div className="flex justify-between mt-1">
-                  <span className="text-sm text-[#1E1B4B]/45">
-                    {pick("11-digit BD mobile number", "১১ সংখ্যার বাংলাদেশি মোবাইল নম্বর")}
-                  </span>
+                  {errors.phone
+                    ? <span className="text-sm text-red-600">{pick("Enter a valid 11-digit BD number.", "সঠিক ১১ সংখ্যার নম্বর দিন।")}</span>
+                    : <span className="text-sm text-[#1E1B4B]/45">{pick("11-digit BD mobile number", "১১ সংখ্যার মোবাইল নম্বর")}</span>
+                  }
                   <span className={`text-sm tabular-nums ${form.phone.length === 11 ? "text-green-600" : "text-[#1E1B4B]/35"}`}>
                     {form.phone.length}/11
                   </span>
@@ -300,6 +310,7 @@ export default function ContactPage() {
               </div>
             </div>
 
+            {/* Class + Subject */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-semibold text-[#1E1B4B]">
@@ -308,22 +319,20 @@ export default function ContactPage() {
                 <SelectWrap>
                   <select
                     value={form.classLevel}
-                    onChange={(event) =>
-                      updateField("classLevel", event.target.value)
-                    }
+                    onChange={(e) => updateField("classLevel", e.target.value)}
+                    onBlur={() => touch("classLevel")}
                     required
-                    className={selectClass}
+                    className={errors.classLevel ? selectErrorClass : selectClass}
                   >
-                    <option value="">
-                      {pick("Choose a class", "শ্রেণি বেছে নিন")}
-                    </option>
-                    {CLASS_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {pick(option.en, option.bn)}
-                      </option>
+                    <option value="">{pick("Choose a class", "শ্রেণি বেছে নিন")}</option>
+                    {CLASS_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>{pick(o.en, o.bn)}</option>
                     ))}
                   </select>
                 </SelectWrap>
+                {errors.classLevel && (
+                  <p className="text-sm text-red-600 mt-1">{pick("Please select a class.", "শ্রেণি বেছে নিন।")}</p>
+                )}
               </div>
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-semibold text-[#1E1B4B]">
@@ -332,54 +341,48 @@ export default function ContactPage() {
                 <SelectWrap>
                   <select
                     value={form.subject}
-                    onChange={(event) =>
-                      updateField("subject", event.target.value)
-                    }
+                    onChange={(e) => updateField("subject", e.target.value)}
+                    onBlur={() => touch("subject")}
                     required
-                    className={selectClass}
+                    className={errors.subject ? selectErrorClass : selectClass}
                   >
-                    <option value="">
-                      {pick(
-                        "Choose a subject / General enquiry",
-                        "বিষয় বেছে নিন / সাধারণ জিজ্ঞাসা",
-                      )}
-                    </option>
-                    {SUBJECT_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {pick(option.en, option.bn)}
-                      </option>
+                    <option value="">{pick("Choose a subject / General enquiry", "বিষয় বেছে নিন")}</option>
+                    {SUBJECT_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>{pick(o.en, o.bn)}</option>
                     ))}
                   </select>
                 </SelectWrap>
+                {errors.subject && (
+                  <p className="text-sm text-red-600 mt-1">{pick("Please select a subject.", "বিষয় বেছে নিন।")}</p>
+                )}
               </div>
             </div>
 
+            {/* Course */}
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-[#1E1B4B]">
                 {pick("Course *", "কোর্স *")}
               </label>
-            <SelectWrap>
-              <select
-                value={form.course}
-                onChange={(event) => updateField("course", event.target.value)}
-                required
-                className={selectClass}
-              >
-                <option value="">
-                  {pick(
-                    "Choose a course / General enquiry",
-                    "কোর্স বেছে নিন / সাধারণ জিজ্ঞাসা",
-                  )}
-                </option>
-                {courseOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {pick(option.en, option.bn)}
-                  </option>
-                ))}
-              </select>
-            </SelectWrap>
+              <SelectWrap>
+                <select
+                  value={form.course}
+                  onChange={(e) => updateField("course", e.target.value)}
+                  onBlur={() => touch("course")}
+                  required
+                  className={errors.course ? selectErrorClass : selectClass}
+                >
+                  <option value="">{pick("Choose a course / General enquiry", "কোর্স বেছে নিন")}</option>
+                  {courseOptions.map((o) => (
+                    <option key={o.value} value={o.value}>{pick(o.en, o.bn)}</option>
+                  ))}
+                </select>
+              </SelectWrap>
+              {errors.course && (
+                <p className="text-sm text-red-600 mt-1">{pick("Please select a course.", "কোর্স বেছে নিন।")}</p>
+              )}
             </div>
 
+            {/* Question */}
             <div className="flex flex-col gap-1">
               <label className="text-sm font-semibold text-[#1E1B4B]">
                 {pick("Your question (optional)", "আপনার প্রশ্ন (ঐচ্ছিক)")}
@@ -387,31 +390,28 @@ export default function ContactPage() {
               <textarea
                 rows={4}
                 value={form.question}
-                onChange={(event) =>
-                  updateField("question", event.target.value)
-                }
+                onChange={(e) => updateField("question", e.target.value)}
                 placeholder={pick(
                   "Tell us what would help you or your child, or ask about a demo class.",
-                  "আপনার বা আপনার সন্তানের কোন বিষয়ে সাহায্য দরকার, অথবা ডেমো ক্লাস নিয়ে কিছু জানার থাকলে এখানে লিখুন।",
+                  "আপনার বা সন্তানের বিষয়ে লিখুন, অথবা ডেমো ক্লাস নিয়ে জিজ্ঞাসা করুন।",
                 )}
                 className={`${inputClass} resize-none`}
               />
             </div>
 
+            {/* Consent */}
             <div className="flex items-start gap-2">
               <input
                 type="checkbox"
                 checked={form.consent}
-                onChange={(event) =>
-                  updateField("consent", event.target.checked)
-                }
+                onChange={(e) => updateField("consent", e.target.checked)}
                 required
                 className="mt-0.5 cursor-pointer"
               />
               <p className="text-sm text-[#1E1B4B]/55">
                 {pick(
-                  "I agree that BrightPath may call me about this enquiry. * We'll only use these details to respond; please don't share sensitive student information.",
-                  "আমি সম্মতি দিচ্ছি যে এই জিজ্ঞাসার বিষয়ে ব্রাইটপাথ আমাকে ফোন করতে পারে। * আপনার দেওয়া তথ্য আমরা শুধু উত্তর দেওয়ার জন্যই ব্যবহার করব। অনুগ্রহ করে শিক্ষার্থীর কোনো সংবেদনশীল ব্যক্তিগত তথ্য দেবেন না।",
+                  "I agree that BrightPath may call me about this enquiry. We'll only use these details to respond.",
+                  "আমি সম্মতি দিচ্ছি যে ব্রাইটপাথ আমাকে ফোন করতে পারে। তথ্য শুধু উত্তর দিতে ব্যবহার করা হবে।",
                 )}
               </p>
             </div>
@@ -421,35 +421,21 @@ export default function ContactPage() {
               disabled={saving}
               className="w-full flex items-center justify-center gap-2 bg-[#F5C518] text-[#1E1B4B] font-semibold py-3.5 rounded-xl text-base hover:bg-[#1E1B4B] hover:text-white transition-colors disabled:opacity-60"
             >
-              {saving
-                ? pick("Sending…", "পাঠানো হচ্ছে…")
-                : pick("Send enquiry", "জিজ্ঞাসা পাঠান")}{" "}
+              {saving ? pick("Sending…", "পাঠানো হচ্ছে…") : pick("Send enquiry", "জিজ্ঞাসা পাঠান")}{" "}
               <FiArrowUpRight />
             </button>
-            {error && (
-              <p
-                role="alert"
-                className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700"
-              >
-                {error}
-              </p>
-            )}
+
             {submitted && (
-              <p
-                role="status"
-                className="rounded-xl bg-green-50 px-4 py-3 text-sm text-green-800"
-              >
+              <p role="status" className="rounded-xl bg-green-50 px-4 py-3 text-sm text-green-800 text-center">
                 {pick(
                   "Thank you. Your enquiry has been received. We will contact you soon.",
-                  "ধন্যবাদ, আপনার জিজ্ঞাসা আমরা পেয়েছি। খুব শিগগিরই আপনার সঙ্গে যোগাযোগ করব।",
+                  "ধন্যবাদ, আপনার জিজ্ঞাসা পেয়েছি। শীঘ্রই যোগাযোগ করব।",
                 )}
               </p>
             )}
+
             <p className="text-sm text-[#1E1B4B]/50 text-center">
-              {pick(
-                `Prefer a conversation? Call ${site.phone.en}.`,
-                `সরাসরি কথা বলতে চান? ${site.phone.bn} নম্বরে ফোন করুন।`,
-              )}
+              {pick(`Prefer a conversation? Call ${site.phone.en}.`, `সরাসরি কথা বলতে চান? ${site.phone.bn} নম্বরে ফোন করুন।`)}
             </p>
           </div>
         </form>
@@ -466,10 +452,7 @@ export default function ContactPage() {
             <p className="text-base text-[#1E1B4B]/70 leading-relaxed">
               {pick(site.address.en, site.address.bn)}
               <br />
-              {pick(
-                "Please call to arrange a visit.",
-                "আসার আগে অনুগ্রহ করে ফোন করে সময় ঠিক করে নিন।",
-              )}
+              {pick("Please call to arrange a visit.", "আসার আগে ফোন করে সময় ঠিক করে নিন।")}
             </p>
             <div className="border-t border-[#E8DCC8] my-4" />
             <p className="text-base text-[#1E1B4B]/60 leading-relaxed">
@@ -477,21 +460,14 @@ export default function ContactPage() {
               <br />
               {pick(site.hours.en, site.hours.bn)}
               <br />
-              {pick(
-                "Confirm holiday hours before travelling.",
-                "ছুটির দিনে আসার আগে সেন্টার খোলা আছে কি না, ফোন করে নিশ্চিত হয়ে নিন।",
-              )}
+              {pick("Confirm holiday hours before travelling.", "ছুটির দিনে আসার আগে ফোন করে নিশ্চিত হয়ে নিন।")}
             </p>
           </div>
 
-          {/* Map */}
           <div className="mt-2 aspect-[5/3] w-full max-w-sm overflow-hidden rounded-xl border border-white/10 bg-white/5">
             <iframe
               src={site.mapEmbedUrl}
-              title={pick(
-                "Map showing the location of BrightPath Coaching Center",
-                "ব্রাইটপাথ কোচিং সেন্টারের অবস্থান",
-              )}
+              title={pick("Map showing the location of BrightPath Coaching Center", "ব্রাইটপাথ কোচিং সেন্টারের অবস্থান")}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
               allowFullScreen
@@ -508,16 +484,10 @@ export default function ContactPage() {
             <FiMapPin /> {pick("Get directions", "পথনির্দেশ")}
           </a>
 
-          {/* Facebook */}
           <div className="bg-[#F5EDD8] rounded-2xl p-5">
-            <h3 className="font-bold text-[#1E1B4B] mb-1">
-              {pick("Stay connected", "যোগাযোগে থাকুন")}
-            </h3>
+            <h3 className="font-bold text-[#1E1B4B] mb-1">{pick("Stay connected", "যোগাযোগে থাকুন")}</h3>
             <p className="text-base text-[#1E1B4B]/60 mb-4">
-              {pick(
-                "Find center updates and announcements on our Facebook page.",
-                "সেন্টারের সর্বশেষ খবর ও ঘোষণার জন্য আমাদের ফেসবুক পেজে চোখ রাখুন।",
-              )}
+              {pick("Find center updates and announcements on our Facebook page.", "সেন্টারের সর্বশেষ খবরের জন্য ফেসবুক পেজ দেখুন।")}
             </p>
             <a
               href={site.facebook || "https://facebook.com"}
@@ -525,9 +495,7 @@ export default function ContactPage() {
               rel="noopener noreferrer"
               className="flex items-center justify-center gap-2 border border-[#E8DCC8] bg-white text-[#1E1B4B] text-base font-semibold py-3 rounded-xl hover:bg-[#1E1B4B] hover:text-white transition-colors"
             >
-              <FiFacebook />{" "}
-              {pick("BrightPath on Facebook", "ফেসবুকে ব্রাইটপাথ")}{" "}
-              <FiArrowUpRight />
+              <FiFacebook /> {pick("BrightPath on Facebook", "ফেসবুকে ব্রাইটপাথ")} <FiArrowUpRight />
             </a>
           </div>
         </div>
@@ -539,19 +507,15 @@ export default function ContactPage() {
           {pick("Before your visit", "আসার আগে")}
         </p>
         <h2 className="text-3xl font-bold text-[#1E1B4B] mb-3">
-          {pick(
-            "Bring your questions. We'll make time.",
-            "আপনার প্রশ্নগুলো নিয়ে আসুন। আপনার জন্য আমরা সময় রাখব।",
-          )}
+          {pick("Bring your questions. We'll make time.", "আপনার প্রশ্নগুলো নিয়ে আসুন। আপনার জন্য আমরা সময় রাখব।")}
         </h2>
         <p className="text-base text-[#1E1B4B]/65 max-w-2xl">
           {pick(
             "Ask to meet the teacher and discuss the syllabus, fees, CCTV coverage, arrangements for girls and safe pickup. These operational details are sample / to confirm.",
-            "শিক্ষকের সঙ্গে দেখা করে সিলেবাস, ফি, সিসিটিভির আওতা, মেয়েদের জন্য ব্যবস্থা এবং নিরাপদে বাড়ি ফেরার বিষয়ে খোলাখুলি জানতে চান। এই ব্যবস্থাপনার তথ্যগুলো এখনও নমুনা, তাই আসার আগে নিশ্চিত করে নিন।",
+            "শিক্ষকের সঙ্গে দেখা করে সিলেবাস, ফি, সিসিটিভির আওতা, মেয়েদের জন্য ব্যবস্থা এবং নিরাপদে বাড়ি ফেরার বিষয়ে জানতে চান। আসার আগে নিশ্চিত করে নিন।",
           )}
         </p>
       </section>
     </>
   );
 }
-
