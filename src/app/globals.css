@@ -1,0 +1,54 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    overflow-x: clip;
+  }
+
+  body {
+    @apply bg-white text-ink font-sans antialiased;
+    overflow-x: clip;
+  }
+
+  ::selection {
+    background: #F5D000;
+    color: #111111;
+  }
+
+  html[lang="bn"] body {
+    font-family: var(--font-bangla), var(--font-sans), sans-serif;
+  }
+
+  :focus-visible {
+    outline: 2px solid #3366FF;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Reusable border + hard shadow card wrapper */
+  .bp-card {
+    @apply rounded-2xl border-2 border-ink bg-white shadow-card;
+  }
+
+  .bp-badge {
+    @apply inline-flex items-center rounded-lg border-2 border-ink px-3 py-1 text-xs font-extrabold shadow-card-sm;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

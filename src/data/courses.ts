@@ -1,0 +1,331 @@
+import type { Course } from "@/types";
+
+type Seed = {
+  id: string;
+  batchId: string;
+  title: string;
+  titleBn: string;
+  level: Course["level"];
+  levelBn: string;
+  classes: string;
+  classesBn: string;
+  subject: string;
+  subjectBn: string;
+  description: string;
+  descriptionBn: string;
+  teacherId: string;
+  teacherName: string;
+  teacherNameBn: string;
+  days: string;
+  daysBn: string;
+  time: string;
+  timeBn: string;
+  monthlyFee: number;
+  batchSize: number;
+  enrolledCount: number;
+  isFull: boolean;
+};
+
+const seed: Seed[] = [
+  {
+    id: "english-primary",
+    batchId: "ep-a",
+    title: "English Foundation",
+    titleBn: "ইংরেজির ভিত্তি",
+    level: "Primary",
+    levelBn: "প্রাথমিক",
+    classes: "Classes 3–5",
+    classesBn: "শ্রেণি ৩–৫",
+    subject: "English",
+    subjectBn: "ইংরেজি",
+    description:
+      "Build reading, writing, and speaking skills through stories, games, and guided practice. Small batches ensure every child gets individual attention.",
+    descriptionBn:
+      "গল্প আর খেলায় মজে পড়া, লেখা আর কথা বলার চর্চা। ছোট ব্যাচে প্রতিটি শিক্ষার্থী আলাদা মনোযোগ পায়।",
+    teacherId: "sultana",
+    teacherName: "Ms. Sultana",
+    teacherNameBn: "মিসেস সুলতানা",
+    days: "Sun, Tue, Thu",
+    daysBn: "রবি, মঙ্গল, বৃহস্পতি",
+    time: "3:30 – 4:30 PM",
+    timeBn: "বিকেল ৩:৩০ – ৪:৩০",
+    monthlyFee: 1800,
+    batchSize: 15,
+    enrolledCount: 10,
+    isFull: false,
+  },
+  {
+    id: "math-primary",
+    batchId: "mp-a",
+    title: "Math Foundation",
+    titleBn: "গণিতের ভিত্তি",
+    level: "Primary",
+    levelBn: "প্রাথমিক",
+    classes: "Classes 3–5",
+    classesBn: "শ্রেণি ৩–৫",
+    subject: "Mathematics",
+    subjectBn: "গণিত",
+    description:
+      "Numeracy, basic arithmetic, and mental math through visual and hands-on methods that make numbers fun and intuitive.",
+    descriptionBn:
+      "ছবি আর হাতে-কলমে শেখা — সংখ্যা চেনা, মৌলিক গণিত আর মানসিক হিসাব। সংখ্যা নিয়ে ভয় কেটে যাবে।",
+    teacherId: "hossain",
+    teacherName: "Mr. Hossain",
+    teacherNameBn: "জনাব হোসেন",
+    days: "Sat, Mon, Wed",
+    daysBn: "শনি, সোম, বুধ",
+    time: "4:00 – 5:00 PM",
+    timeBn: "বিকেল ৪:০০ – ৫:০০",
+    monthlyFee: 1800,
+    batchSize: 15,
+    enrolledCount: 14,
+    isFull: false,
+  },
+  {
+    id: "english-junior",
+    batchId: "ej-a",
+    title: "English Proficiency",
+    titleBn: "ইংরেজি দক্ষতা",
+    level: "Junior",
+    levelBn: "জুনিয়র",
+    classes: "Classes 6–7",
+    classesBn: "শ্রেণি ৬–৭",
+    subject: "English",
+    subjectBn: "ইংরেজি",
+    description:
+      "Grammar, comprehension, writing paragraphs and essays. Covers the full NCTB syllabus with extra exam strategy practice.",
+    descriptionBn:
+      "ব্যাকরণ, অনুধাবন, অনুচ্ছেদ আর রচনা লেখা — সম্পূর্ণ NCTB সিলেবাস, পরীক্ষার কৌশলসহ।",
+    teacherId: "sultana",
+    teacherName: "Ms. Sultana",
+    teacherNameBn: "মিসেস সুলতানা",
+    days: "Sun, Tue, Thu",
+    daysBn: "রবি, মঙ্গল, বৃহস্পতি",
+    time: "5:00 – 6:00 PM",
+    timeBn: "বিকেল ৫:০০ – ৬:০০",
+    monthlyFee: 1800,
+    batchSize: 15,
+    enrolledCount: 8,
+    isFull: false,
+  },
+  {
+    id: "math-junior",
+    batchId: "mj-a",
+    title: "Math Accelerator",
+    titleBn: "গণিত অ্যাক্সিলারেটর",
+    level: "Junior",
+    levelBn: "জুনিয়র",
+    classes: "Classes 6–7",
+    classesBn: "শ্রেণি ৬–৭",
+    subject: "Mathematics",
+    subjectBn: "গণিত",
+    description:
+      "Fractions, algebra basics, geometry, and word problems. Builds the analytical thinking needed for higher classes.",
+    descriptionBn:
+      "ভগ্নাংশ, বীজগণিত, জ্যামিতি আর সমস্যা সমাধান — পরের শ্রেণিতে প্রয়োজন এমন বিশ্লেষণী চিন্তা গড়ে ওঠে।",
+    teacherId: "hossain",
+    teacherName: "Mr. Hossain",
+    teacherNameBn: "জনাব হোসেন",
+    days: "Sat, Mon, Wed",
+    daysBn: "শনি, সোম, বুধ",
+    time: "5:00 – 6:00 PM",
+    timeBn: "বিকেল ৫:০০ – ৬:০০",
+    monthlyFee: 1800,
+    batchSize: 15,
+    enrolledCount: 15,
+    isFull: true,
+  },
+  {
+    id: "science-jsc",
+    batchId: "sj-a",
+    title: "Science (JSC)",
+    titleBn: "বিজ্ঞান (জেএসসি)",
+    level: "JSC",
+    levelBn: "জেএসসি",
+    classes: "Class 8",
+    classesBn: "শ্রেণি ৮",
+    subject: "Science",
+    subjectBn: "বিজ্ঞান",
+    description:
+      "Complete Class 8 Science syllabus: Physics, Chemistry, Biology chapters with model tests and exam technique.",
+    descriptionBn:
+      "অষ্টম শ্রেণির সম্পূর্ণ বিজ্ঞান সিলেবাস — পদার্থ, রসায়ন, জীববিজ্ঞান সব অধ্যায়, মডেল টেস্ট আর পরীক্ষার কৌশল।",
+    teacherId: "chowdhury",
+    teacherName: "Ms. Chowdhury",
+    teacherNameBn: "মিসেস চৌধুরী",
+    days: "Sat, Mon, Wed",
+    daysBn: "শনি, সোম, বুধ",
+    time: "6:00 – 7:30 PM",
+    timeBn: "সন্ধ্যা ৬:০০ – ৭:৩০",
+    monthlyFee: 1800,
+    batchSize: 14,
+    enrolledCount: 11,
+    isFull: false,
+  },
+  {
+    id: "physics-ssc",
+    batchId: "ps-a",
+    title: "Physics (SSC)",
+    titleBn: "পদার্থবিজ্ঞান (এসএসসি)",
+    level: "SSC",
+    levelBn: "এসএসসি",
+    classes: "Classes 9–10",
+    classesBn: "শ্রেণি ৯–১০",
+    subject: "Physics",
+    subjectBn: "পদার্থবিজ্ঞান",
+    description:
+      "Board-syllabus Physics for Classes 9–10. Concepts explained clearly with diagrams, numerical practice, and full model tests.",
+    descriptionBn:
+      "নবম-দশম শ্রেণির বোর্ড সিলেবাস পদার্থবিজ্ঞান — চিত্র দিয়ে স্পষ্ট বোঝাপড়া, সংখ্যাসূচক অনুশীলন আর সম্পূর্ণ মডেল টেস্ট।",
+    teacherId: "rahman",
+    teacherName: "Mr. Rahman",
+    teacherNameBn: "জনাব রহমান",
+    days: "Sun, Tue, Thu",
+    daysBn: "রবি, মঙ্গল, বৃহস্পতি",
+    time: "5:00 – 6:30 PM",
+    timeBn: "বিকেল ৫:০০ – ৬:৩০",
+    monthlyFee: 2200,
+    batchSize: 14,
+    enrolledCount: 12,
+    isFull: false,
+  },
+  {
+    id: "chemistry-ssc",
+    batchId: "cs-a",
+    title: "Chemistry (SSC)",
+    titleBn: "রসায়ন (এসএসসি)",
+    level: "SSC",
+    levelBn: "এসএসসি",
+    classes: "Classes 9–10",
+    classesBn: "শ্রেণি ৯–১০",
+    subject: "Chemistry",
+    subjectBn: "রসায়ন",
+    description:
+      "Full SSC Chemistry: atoms and molecules, reactions, periodic table, acids and bases, and practicals revision.",
+    descriptionBn:
+      "এসএসসি রসায়নের সম্পূর্ণ সিলেবাস — পরমাণু ও অণু, বিক্রিয়া, পর্যায় সারণি, অ্যাসিড-ক্ষার, ব্যবহারিক পরীক্ষার পুনরাবৃত্তি।",
+    teacherId: "chowdhury",
+    teacherName: "Ms. Chowdhury",
+    teacherNameBn: "মিসেস চৌধুরী",
+    days: "Sat, Mon, Wed",
+    daysBn: "শনি, সোম, বুধ",
+    time: "5:00 – 6:30 PM",
+    timeBn: "বিকেল ৫:০০ – ৬:৩০",
+    monthlyFee: 2200,
+    batchSize: 14,
+    enrolledCount: 9,
+    isFull: false,
+  },
+  {
+    id: "math-ssc",
+    batchId: "ms-a",
+    title: "Higher Math (SSC)",
+    titleBn: "উচ্চতর গণিত (এসএসসি)",
+    level: "SSC",
+    levelBn: "এসএসসি",
+    classes: "Classes 9–10",
+    classesBn: "শ্রেণি ৯–১০",
+    subject: "Mathematics",
+    subjectBn: "গণিত",
+    description:
+      "Algebra, trigonometry, coordinate geometry, and statistics for SSC Higher Math. Focus on board question patterns.",
+    descriptionBn:
+      "এসএসসি উচ্চতর গণিত — বীজগণিত, ত্রিকোণমিতি, স্থানাঙ্ক জ্যামিতি আর পরিসংখ্যান। বোর্ডের প্রশ্নপ্যাটার্ন বুঝে অনুশীলন।",
+    teacherId: "hossain",
+    teacherName: "Mr. Hossain",
+    teacherNameBn: "জনাব হোসেন",
+    days: "Sun, Tue, Thu",
+    daysBn: "রবি, মঙ্গল, বৃহস্পতি",
+    time: "7:00 – 8:30 PM",
+    timeBn: "সন্ধ্যা ৭:০০ – ৮:৩০",
+    monthlyFee: 2200,
+    batchSize: 14,
+    enrolledCount: 14,
+    isFull: true,
+  },
+  {
+    id: "physics-hsc",
+    batchId: "ph-a",
+    title: "Physics (HSC)",
+    titleBn: "পদার্থবিজ্ঞান (এইচএসসি)",
+    level: "HSC",
+    levelBn: "এইচএসসি",
+    classes: "Classes 11–12",
+    classesBn: "শ্রেণি ১১–১২",
+    subject: "Physics",
+    subjectBn: "পদার্থবিজ্ঞান",
+    description:
+      "HSC Physics Parts 1 & 2: mechanics, waves, thermodynamics, optics, electricity, and modern physics. Regular chapter tests and full mock exams.",
+    descriptionBn:
+      "এইচএসসি পদার্থবিজ্ঞান ১ম ও ২য় পত্র — বলবিদ্যা, তরঙ্গ, তাপগতিবিদ্যা, আলোকবিজ্ঞান, বিদ্যুৎ আর আধুনিক পদার্থবিজ্ঞান। নিয়মিত অধ্যায় পরীক্ষা ও মূল পরীক্ষার নমুনা।",
+    teacherId: "rahman",
+    teacherName: "Mr. Rahman",
+    teacherNameBn: "জনাব রহমান",
+    days: "Sat, Mon, Wed",
+    daysBn: "শনি, সোম, বুধ",
+    time: "7:00 – 8:30 PM",
+    timeBn: "সন্ধ্যা ৭:০০ – ৮:৩০",
+    monthlyFee: 2800,
+    batchSize: 12,
+    enrolledCount: 10,
+    isFull: false,
+  },
+  {
+    id: "chemistry-hsc",
+    batchId: "ch-a",
+    title: "Chemistry (HSC)",
+    titleBn: "রসায়ন (এইচএসসি)",
+    level: "HSC",
+    levelBn: "এইচএসসি",
+    classes: "Classes 11–12",
+    classesBn: "শ্রেণি ১১–১২",
+    subject: "Chemistry",
+    subjectBn: "রসায়ন",
+    description:
+      "HSC Chemistry: organic reactions, equilibria, electrochemistry, and industrial processes. Practical-oriented revision included.",
+    descriptionBn:
+      "এইচএসসি রসায়ন — জৈব বিক্রিয়া, সাম্যাবস্থা, তড়িৎ রসায়ন আর শিল্প প্রক্রিয়া। ব্যবহারিক পরীক্ষার প্রস্তুতিসহ।",
+    teacherId: "chowdhury",
+    teacherName: "Ms. Chowdhury",
+    teacherNameBn: "মিসেস চৌধুরী",
+    days: "Sun, Tue, Thu",
+    daysBn: "রবি, মঙ্গল, বৃহস্পতি",
+    time: "7:00 – 8:30 PM",
+    timeBn: "সন্ধ্যা ৭:০০ – ৮:৩০",
+    monthlyFee: 2800,
+    batchSize: 12,
+    enrolledCount: 7,
+    isFull: false,
+  },
+];
+
+export const courses: Course[] = seed.map((s) => ({
+    id: s.id,
+    title: s.title,
+    titleBn: s.titleBn,
+    level: s.level,
+    levelBn: s.levelBn,
+    classes: s.classes,
+    classesBn: s.classesBn,
+    subject: s.subject,
+    subjectBn: s.subjectBn,
+    description: s.description,
+    descriptionBn: s.descriptionBn,
+    teacherId: s.teacherId,
+    teacherName: s.teacherName,
+    teacherNameBn: s.teacherNameBn,
+    monthlyFee: s.monthlyFee,
+    batches: [
+        {
+            id: s.batchId,
+            courseId: s.id,
+            days: s.days,
+            daysBn: s.daysBn,
+            time: s.time,
+            timeBn: s.timeBn,
+            batchSize: s.batchSize,
+            enrolledCount: s.enrolledCount,
+            isFull: s.isFull,
+        },
+    ],
+}));
