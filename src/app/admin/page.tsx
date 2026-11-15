@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { DashboardStats } from "@/types";
 
 function StatCard({ label, value, sub, colorClass }: { label: string; value: number; sub?: string; colorClass: string }) {
@@ -14,15 +15,20 @@ function StatCard({ label, value, sub, colorClass }: { label: string; value: num
 }
 
 export default function AdminDashboard() {
+    const router = useRouter();
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         fetch("/api/admin/stats")
-            .then((r) => { if (!r.ok) throw new Error("Unauthorized"); return r.json(); })
-            .then(setStats)
+            .then((r) => {
+                if (r.status === 401) { router.replace("/admin/login"); return null; }
+                if (!r.ok) throw new Error("Failed to load"); return r;
+            })
+            .then((r) => r ? r.json() : null)
+            .then((data) => { if (data) setStats(data); })
             .catch((e) => setError(e.message));
-    }, []);
+    }, [router]);
 
     if (error) {
         return (
