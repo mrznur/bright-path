@@ -22,19 +22,24 @@ export default function SiteAdminPage() {
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault();
         setSaving(true);
-        const res = await fetch("/api/admin/site", {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(form),
-        });
-        setSaving(false);
-        if (!res.ok) {
-            setToast("Save failed.");
-            return;
+        try {
+            const res = await fetch("/api/admin/site", {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(form),
+            });
+            if (!res.ok) {
+                setToast("Save failed.");
+                return;
+            }
+            setForm(await res.json());
+            setToast("Site settings saved.");
+            setTimeout(() => setToast(null), 3500);
+        } catch {
+            setToast("Save failed — check your connection.");
+        } finally {
+            setSaving(false);
         }
-        setForm(await res.json());
-        setToast("Site settings saved.");
-        setTimeout(() => setToast(null), 3500);
     }
 
     if (loading) {
